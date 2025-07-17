@@ -23,23 +23,18 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
         ]);
         try {
-
             $project = Project::create($validated);
-
             return new ProjectResource($project);
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => $th->getMessage()
-            ], 500)
-            ;
+            ], 500);
         }
     }
 
-    public function destroy($id)
+    public function destroy(Project $project)
     {
-        $project = Project::findOrFail($id);
         $project->delete();
-
         return response()->json(['success' => true]);
     }
 }

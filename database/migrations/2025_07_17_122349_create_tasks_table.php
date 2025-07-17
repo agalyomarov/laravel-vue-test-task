@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->text("description")->nullable();
             $table->foreignId("user_id")->constrained()->cascadeOnDelete();
             $table->foreignId("project_id")->constrained()->cascadeOnDelete();
-            $table->enum("status", TaskStatusEnum::values())->default(TaskStatusEnum::BACKLOG);
+            $table->enum("status", TaskStatusEnum::values());
             $table->timestamps();
         });
     }

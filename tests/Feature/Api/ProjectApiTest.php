@@ -89,35 +89,46 @@ it('creates a task for a given project', function () {
     $respoonse = postJson("/api/projects/{$project->id}/tasks", [
         'user_id' => $user->id,
         'name' => 'New Task',
-        'description' => '',
-        "status" => TaskStatusEnum::BACKLOG->value
     ])
         ->assertCreated()
         ->assertJsonFragment([
             'name' => 'New Task',
             'user_id' => $user->id,
             "project_id" => $project->id,
-        ]);
-    // ->assertJsonPath('data.status', TaskStatusEnum::BACKLOG->value);
-    dump($respoonse->json());
+        ])
+        ->assertJsonPath('data.status', TaskStatusEnum::BACKLOG->value);
 });
 
-// // [DELETE] /api/projects/{id}
-// it('deletes a project', function () {
-//     $project = Project::factory()->create();
+// [DELETE] /api/projects/{id}
+it('deletes a project', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $user->id]);
 
-//     deleteJson("/api/projects/{$project->id}")
-//         ->assertOk()
-//         ->assertJson(['success' => true]);
-// });
+    deleteJson("/api/projects/{$project->id}")
+        ->assertOk()
+        ->assertJson(['success' => true]);
+});
 
-// // [DELETE] /api/projects/{id}/tasks/{task_id}
-// it('deletes a task from a project', function () {
-//     $project = Project::factory()->create();
-//     $task = Task::factory()->create(['project_id' => $project->id]);
 
-//     deleteJson("/api/projects/{$project->id}/tasks/{$task->id}")
-//         ->assertOk()
-//         ->assertJson(['success' => true]);
-// });
+
+
+// [DELETE] /api/projects/{id}/tasks/{task_id}
+it('returns 404 when deleting a Project that does not exist', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $user->id]);
+    $task = Task::factory()->create(['project_id' => $project->id, 'user_id' => $user->id]);
+
+    deleteJson("/api/projects/100/tasks/{$task->id}")
+        ->assertNotFound();
+});
+
+it('deletes a task from a project', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $user->id]);
+    $task = Task::factory()->create(['project_id' => $project->id, 'user_id' => $user->id]);
+
+    deleteJson("/api/projects/{$project->id}/tasks/{$task->id}")
+        ->assertOk()
+        ->assertJson(['success' => true]);
+});
 

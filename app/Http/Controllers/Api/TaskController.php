@@ -18,10 +18,11 @@ class TaskController extends Controller
             'user_id' => ['required', Rule::exists('users', 'id')->where('id', $project->user_id)],
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'status' => "",
+            'status' => ["sometimes", Rule::enum(TaskStatusEnum::class)],
         ]);
 
         try {
+            $validated["status"] ??= TaskStatusEnum::BACKLOG;
             $task = $project->tasks()->create($validated);
             return new TaskResource($task);
         } catch (\Throwable $th) {
@@ -31,11 +32,9 @@ class TaskController extends Controller
         }
     }
 
-    public function destroy($projectId, $taskId)
+    public function destroy(Project $project, Task $task)
     {
-        $task = Task::where('project_id', $projectId)->findOrFail($taskId);
         $task->delete();
-
         return response()->json(['success' => true]);
     }
 }
