@@ -9,6 +9,20 @@ use function Pest\Laravel\getJson;
 
 uses(RefreshDatabase::class);
 
+
+// [GET] /api/users
+it('returns users without password field', function () {
+    $user = User::factory(3)->create();
+
+    $response = getJson("/api/user")
+        ->assertOk()
+        ->assertJsonCount(3, 'data')
+        ->assertJsonMissing(['password']);
+
+    dump($response->json());
+});
+
+
 // [GET] /api/user/{id}
 it('returns user without password field', function () {
     $user = User::factory()->create();
